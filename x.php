@@ -5,7 +5,7 @@
   <meta name="generator" content="">
   <title>Suodku Solver</title>
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src=".js/sudoku.js"></script>
+  <script src="./js/sudoku.js"></script>
   <link rel="stylesheet" type="text/css" href="./css/sudoku.css"/>
   </head>
   <body>
