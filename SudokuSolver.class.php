@@ -99,10 +99,10 @@ Class SudokuSolver{
  * @access public
  */
 	public function solveSudoku() { 	
-       $this->loop = 0;
-       $c = 0;
+          $this->loop = 0;
+          $c = 0;
        
-       while( !$this->_is_solved ) {
+          while( !$this->_is_solved ) {
             $this->_determineCandidates();
 
             $this->_isEverythingOkSoFar();
@@ -132,10 +132,6 @@ Class SudokuSolver{
             }
             $this->_checkSolved();
             $this->loop++;
-            //if($this->loop == 200) {
-              //  $this->print_clean();
-                //die;
-            //}
        }
 
        return $this->_initialSudoku;
@@ -149,32 +145,31 @@ Class SudokuSolver{
  */
 	private function _determineCandidates() { 
 	
-     $this->_errorOccured = false;
+           $this->_errorOccured = false;
      
-     for($i = 0; $i < 9; $i++) {
-         for($j = 0; $j < 9; $j++) {
-             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] == 0 ) {
-                  $candidates = range(1, 9);
-                  $candidates = $this->_removeRowDuplicates($i, $candidates);
-                  $candidates = $this->_removeColumnDuplicates($j, $candidates);
-                  $candidates = $this->_removeBlockDuplicates($i, $j, $candidates);
-                  if($this->_isSudokuX) {
-                  //if(false) {
-                      $candidates = $this->_removeXDuplicates($i, $j, $candidates);
-                  }
+           for($i = 0; $i < 9; $i++) {
+              for($j = 0; $j < 9; $j++) {
+                  if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] == 0 ) {
+                      $candidates = range(1, 9);
+                      $candidates = $this->_removeRowDuplicates($i, $candidates);
+                      $candidates = $this->_removeColumnDuplicates($j, $candidates);
+                      $candidates = $this->_removeBlockDuplicates($i, $j, $candidates);
+                      if($this->_isSudokuX) {
+                          $candidates = $this->_removeXDuplicates($i, $j, $candidates);
+                      }
          
-                  if(empty($candidates)) {
-                      $this->errorOccured = true;
-                      break;
-                  } 
-                  $this->_candidates[$i][$j] = $candidates;
+                      if(empty($candidates)) {
+                          $this->errorOccured = true;
+                          break;
+                      } 
+                      $this->_candidates[$i][$j] = $candidates;
+                 }
              }
-         }
-         if($this->_errorOccured) {
-             break;
-         }
-     }
-	}
+             if($this->_errorOccured) {
+                 break;
+             }
+          }
+       }
 
 /**
  * Fill the Cell with only one Candidate
@@ -184,19 +179,19 @@ Class SudokuSolver{
  */
 	private function _fillCellsWithOneCandidate() { 
 	
-     $this->needToGuess = true;
-     for($i = 0; $i < 9; $i++) {
-         for($j = 0; $j < 9; $j++) {
-             if(isset($this->_candidates[$i][$j])) {
-                 if( is_array($this->_candidates[$i][$j]) && (count($this->_candidates[$i][$j]) == 1)) {
-                      $cellValue = reset($this->_candidates[$i][$j]);
-                      unset($this->_candidates[$i][$j]);
-                      $this->_initialSudoku[$i][$j] = $cellValue;
-                      $this->needToGuess = false;
-                 }
-             }
-         }
-     }
+           $this->needToGuess = true;
+           for($i = 0; $i < 9; $i++) {
+              for($j = 0; $j < 9; $j++) {
+                  if(isset($this->_candidates[$i][$j])) {
+                      if( is_array($this->_candidates[$i][$j]) && (count($this->_candidates[$i][$j]) == 1)) {
+                          $cellValue = reset($this->_candidates[$i][$j]);
+                          unset($this->_candidates[$i][$j]);
+                          $this->_initialSudoku[$i][$j] = $cellValue;
+                          $this->needToGuess = false;
+                      }
+                  }
+              }
+           }
 	}	
 	
 /**
@@ -207,20 +202,20 @@ Class SudokuSolver{
  */
 	private function _getCellWithLeastCandidates() { 
 	
-     $this->activeRow = null;
-     $this->activeColumn = null;
-     $minimum_candidates = 9;
-     for($i = 0; $i < 9; $i++) {
-         for($j = 0; $j < 9; $j++) {
-             if(isset($this->_candidates[$i][$j])) {
-                 if( is_array($this->_candidates[$i][$j]) && (count($this->_candidates[$i][$j]) <= $minimum_candidates) && (count($this->_candidates[$i][$j]) > 0)) {
-                      $this->activeRow = $i;
-                      $this->activeColumn = $j;
-                      $minimum_candidates = count($this->_candidates[$i][$j]);
-                 }
-             }
-         }
-     }
+            $this->activeRow = null;
+            $this->activeColumn = null;
+     	    $minimum_candidates = 9;
+            for($i = 0; $i < 9; $i++) {
+               for($j = 0; $j < 9; $j++) {
+                  if(isset($this->_candidates[$i][$j])) {
+                      if( is_array($this->_candidates[$i][$j]) && (count($this->_candidates[$i][$j]) <= $minimum_candidates) && (count($this->_candidates[$i][$j]) > 0)) {
+                          $this->activeRow = $i;
+                          $this->activeColumn = $j;
+                          $minimum_candidates = count($this->_candidates[$i][$j]);
+                      }
+                  }
+              }
+           }
 	}	
 
 /**
@@ -231,15 +226,15 @@ Class SudokuSolver{
  */
 	private function _removeRowDuplicates($row, $candidates) { 
 	
-     for($i = 0; $i < 9; $i++) {
-        if( isset($this->_initialSudoku[$row][$i]) && $this->_initialSudoku[$row][$i] != 0 ) {
-           $key = array_search($this->_initialSudoku[$row][$i], $candidates);
-           if($key !== false) {
-              unset($candidates[$key]);
-           }
-        }
-     }
-     return $candidates;
+            for($i = 0; $i < 9; $i++) {
+                if( isset($this->_initialSudoku[$row][$i]) && $this->_initialSudoku[$row][$i] != 0 ) {
+                    $key = array_search($this->_initialSudoku[$row][$i], $candidates);
+                    if($key !== false) {
+                        unset($candidates[$key]);
+                    }
+                }
+            }
+            return $candidates;
 	}	
 
 /**
@@ -250,15 +245,15 @@ Class SudokuSolver{
  */
 	private function _removeColumnDuplicates($column, $candidates) { 
 	
-     for($i = 0; $i < 9; $i++) {                    
-        if( isset($this->_initialSudoku[$i][$column]) && $this->_initialSudoku[$i][$column] != 0 ) {
-           $key = array_search($this->_initialSudoku[$i][$column], $candidates);
-           if($key !== false) {
-              unset($candidates[$key]);
-           }
-        }
-     }
-     return $candidates;
+            for($i = 0; $i < 9; $i++) {                    
+                if( isset($this->_initialSudoku[$i][$column]) && $this->_initialSudoku[$i][$column] != 0 ) {
+                    $key = array_search($this->_initialSudoku[$i][$column], $candidates);
+                    if($key !== false) {
+                        unset($candidates[$key]);
+                    }
+                }
+            }
+            return $candidates;
 	}
 
 /**
@@ -269,20 +264,20 @@ Class SudokuSolver{
  */
 	private function _removeBlockDuplicates($row, $column, $candidates) { 
 	
-     $rowStart = floor( $row / 3 ) * 3;
-     $colStart = floor( $column / 3 ) * 3;
+            $rowStart = floor( $row / 3 ) * 3;
+            $colStart = floor( $column / 3 ) * 3;
      
-     for($i = $rowStart; $i < $rowStart + 3; $i++) {
-        for($j = $colStart; $j < $colStart + 3; $j++) {
-            if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
-               $key = array_search($this->_initialSudoku[$i][$j], $candidates);
-               if($key !== false) {
-                  unset($candidates[$key]);
-               }
-            }               
-        }
-     }
-     return $candidates;
+            for($i = $rowStart; $i < $rowStart + 3; $i++) {
+                for($j = $colStart; $j < $colStart + 3; $j++) {
+                    if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+                        $key = array_search($this->_initialSudoku[$i][$j], $candidates);
+                        if($key !== false) {
+                             unset($candidates[$key]);
+                        } 
+                    }               
+                }
+            }
+            return $candidates;
 	}
 	
 /**
@@ -293,32 +288,32 @@ Class SudokuSolver{
  */
 	private function _removeXDuplicates($row, $column, $candidates) { 
 	
-     //Check if canditate fall in first Diagnol
-     if($row == $column) {
-         for($i = 0; $i < 9; $i++) {
-             if( isset($this->_initialSudoku[$i][$i]) && $this->_initialSudoku[$i][$i] != 0 ) {
-                 $key = array_search($this->_initialSudoku[$i][$i], $candidates);
-                 if($key !== false) {
-                    unset($candidates[$key]);
-                 }
-             } 
-         }
-     }
+	     //Check if canditate fall in first Diagnol
+	     if($row == $column) {
+	         for($i = 0; $i < 9; $i++) {
+	             if( isset($this->_initialSudoku[$i][$i]) && $this->_initialSudoku[$i][$i] != 0 ) {
+	                 $key = array_search($this->_initialSudoku[$i][$i], $candidates);
+	                 if($key !== false) {
+	                    unset($candidates[$key]);
+	                 }
+	             } 
+	         }
+	     }
      
-     //Check if canditate fall in second Diagnol
-     if($column == 8 - $row) {
-         for($i = 0; $i < 9; $i++) {
-             $j = 8 - $i;
-             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
-                 $key = array_search($this->_initialSudoku[$i][$j], $candidates);
-                 if($key !== false) {
-                    unset($candidates[$key]);
-                 }   
-             } 
-         }
-     }
+	     //Check if canditate fall in second Diagnol
+	     if($column == 8 - $row) {
+	         for($i = 0; $i < 9; $i++) {
+	             $j = 8 - $i;
+	             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+	                 $key = array_search($this->_initialSudoku[$i][$j], $candidates);
+	                 if($key !== false) {
+	                    unset($candidates[$key]);
+	                 }   
+	             } 
+	         }
+	     }
      
-     return $candidates;
+     	     return $candidates;
 	}	
 
 /**
@@ -329,20 +324,20 @@ Class SudokuSolver{
  */
 	private function _checkSolved() { 
 	
-     $flag = true;
-     for($i = 0; $i < 9; $i++) {
-         for($j = 0; $j < 9; $j++) {
-             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] == 0 ) {
-                $flag = false;
-                break;
-             }
-         }
-         
-         if( !$flag ) {
-            break;
-         }
-     }
-     $this->_is_solved = $flag;    
+	     $flag = true;
+	     for($i = 0; $i < 9; $i++) {
+	         for($j = 0; $j < 9; $j++) {
+	             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] == 0 ) {
+	                $flag = false;
+	                break;
+	             }
+	         }
+	         
+	         if( !$flag ) {
+	            break;
+	         }
+	     }
+     	     $this->_is_solved = $flag;    
 	}    	
 
 /**
@@ -353,63 +348,63 @@ Class SudokuSolver{
  */
 	private function _isEverythingOkSoFar() { 
 	
-     if($this->_isSudokuX) {
-         //Check First Diagnol
-         $rowValues = array();
-         for($i = 0; $i < 9; $i++) {
-             if( isset($this->_initialSudoku[$i][$i]) && $this->_initialSudoku[$i][$i] != 0 ) {
-                  $rowValues[] = $this->_initialSudoku[$i][$i];
-             } 
-         }
-         if(count(array_unique($rowValues)) < count($rowValues)) {
-              $this->_errorOccured = true;
-              return;
-         }         
-         
-         //Check Second Diagnol
-         $rowValues = array(); 
-         for($i = 0; $i < 9; $i++) {
-             $j = 8 - $i;
-             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
-                  $rowValues[] = $this->_initialSudoku[$i][$j];
-             } 
-         }
-         
-         if(count(array_unique($rowValues)) < count($rowValues)) {
-              $this->_errorOccured = true;
-              return;
-         }                
-     }
+	     if($this->_isSudokuX) {
+	         //Check First Diagnol
+	         $rowValues = array();
+	         for($i = 0; $i < 9; $i++) {
+	             if( isset($this->_initialSudoku[$i][$i]) && $this->_initialSudoku[$i][$i] != 0 ) {
+	                  $rowValues[] = $this->_initialSudoku[$i][$i];
+	             } 
+	         }
+	         if(count(array_unique($rowValues)) < count($rowValues)) {
+	              $this->_errorOccured = true;
+	              return;
+	         }         
+	         
+	         //Check Second Diagnol
+	         $rowValues = array(); 
+	         for($i = 0; $i < 9; $i++) {
+	             $j = 8 - $i;
+	             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+	                  $rowValues[] = $this->_initialSudoku[$i][$j];
+	             } 
+	         }
+	         
+	         if(count(array_unique($rowValues)) < count($rowValues)) {
+	              $this->_errorOccured = true;
+	              return;
+	         }                
+	     }
 
-     //Check Row Constraint
-     for($i = 0; $i < 9; $i++) {
-         $rowValues = array();
-         for($j = 0; $j < 9; $j++) {
-             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
-                  $rowValues[] = $this->_initialSudoku[$i][$j];
-             } 
-         }
-         
-         if(count(array_unique($rowValues)) < count($rowValues)) {
-              $this->_errorOccured = true;
-              return;
-         }    
-     }
-
-     //Check Column Constraint
-     for($i = 0; $i < 9; $i++) {
-         $rowValues = array();
-         for($j = 0; $j < 9; $j++) {
-             if( isset($this->_initialSudoku[$j][$i]) && $this->_initialSudoku[$j][$i] != 0 ) {
-                  $rowValues[] = $this->_initialSudoku[$j][$i];
-             } 
-         }
-         
-         if(count(array_unique($rowValues)) < count($rowValues)) {
-              $this->_errorOccured = true;
-              return;
-         }    
-     }
+	     //Check Row Constraint
+	     for($i = 0; $i < 9; $i++) {
+	         $rowValues = array();
+	         for($j = 0; $j < 9; $j++) {
+	             if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+	                  $rowValues[] = $this->_initialSudoku[$i][$j];
+	             } 
+	         }
+	         
+	         if(count(array_unique($rowValues)) < count($rowValues)) {
+	              $this->_errorOccured = true;
+	              return;
+	         }    
+	     }
+	
+	     //Check Column Constraint
+	     for($i = 0; $i < 9; $i++) {
+	         $rowValues = array();
+	         for($j = 0; $j < 9; $j++) {
+	             if( isset($this->_initialSudoku[$j][$i]) && $this->_initialSudoku[$j][$i] != 0 ) {
+	                  $rowValues[] = $this->_initialSudoku[$j][$i];
+	             } 
+	         }
+	         
+	         if(count(array_unique($rowValues)) < count($rowValues)) {
+	              $this->_errorOccured = true;
+	              return;
+	         }    
+	     }
 	}	
   
   
