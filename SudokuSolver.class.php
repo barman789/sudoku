@@ -204,7 +204,7 @@ Class SudokuSolver{
 	
             $this->activeRow = null;
             $this->activeColumn = null;
-     	    $minimum_candidates = 9;
+            $minimum_candidates = 9;
             for($i = 0; $i < 9; $i++) {
                for($j = 0; $j < 9; $j++) {
                   if(isset($this->_candidates[$i][$j])) {
@@ -313,7 +313,7 @@ Class SudokuSolver{
 	         }
 	     }
      
-     	     return $candidates;
+             return $candidates;
 	}	
 
 /**
@@ -337,7 +337,7 @@ Class SudokuSolver{
 	            break;
 	         }
 	     }
-     	     $this->_is_solved = $flag;    
+             $this->_is_solved = $flag;    
 	}    	
 
 /**
