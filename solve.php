@@ -14,8 +14,6 @@
        
 <?php
   
-  $i = 0;
-  $j = 1;
   $sudoku = array();
   
    for($i = 0; $i < 9; $i++) {
@@ -30,13 +28,32 @@
 
 	set_time_limit(0);
 	
-  $start = microtime();
+ $start = microtime();
   
 	$solver = new SudokuSolver();
 	$solver->setSudoku($sudoku);
-  if(isset($_POST['isX']) && $_POST['isX'] == 1) {
-      $solver->isSudokuX(true);
-  }
+ if(isset($_POST['isX']) && $_POST['isX'] == 1) {
+     $solver->isSudokuX(true);
+ }    
+
+ if(isset($_POST['isEvenOdd']) && $_POST['isEvenOdd'] == 1) {
+     $solver->isSudokuEvenOdd(true);
+     $evenOddStream = array();
+     for($i = 0; $i < 9; $i++) {
+         $evenOddStream[$i] = array();
+         for($j = 0; $j < 9; $j++) {
+              $var = 'hidden_grid_even_odd'.$i.$j;
+              $evenOddStream[$i][] = $_POST[$var];
+         }
+     }
+        
+      $check = $solver->isValidEvenOddSudoku($evenOddStream);
+      if(!$check) {
+          //throw an exception later on, just putting a die for now
+          die('NOT VALID EVEN ODD SUDOKU');
+      }
+ }
+  
 	$solved = $solver->solveSudoku();
 	
   $end = microtime();

@@ -4,6 +4,8 @@
 .c8, .c2, .c5{border-right: 1px solid black;}
 .r8 {border-bottom: 1px solid black;}
 .xx {background-color: #66CCFF}
+.even {background-color: #FF3399}
+#span_doneEven {display:none;}
 
 #footer {
  clear: both;

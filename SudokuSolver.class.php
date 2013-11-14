@@ -32,6 +32,23 @@ Class SudokuSolver{
 	private $_isSudokuX = false;
 	
 /**
+ * This flag is used to determine EvenOdd Sudoku
+ *
+ * @var boolean
+ * @access private
+ */
+	private $_isEvenOdd = false;
+ 	
+/**
+ * This holds the Even-Odd Stream for EvenOdd Sudoku
+ *
+ * @var array
+ * @access private
+ */
+	private $_evenOddStream;
+
+ 	
+/**
  * This tells if Sudoku is solved or not
  *
  * @var boolean
@@ -83,7 +100,7 @@ Class SudokuSolver{
   }
 
 /**
- * Saves the Sudoku in $_initialSudoku Array
+ * Sets the Flag whether its a SudokuX
  *
  * @return void
  * @access public
@@ -91,6 +108,16 @@ Class SudokuSolver{
 	public function isSudokuX($boolean = false) { 	
   	   $this->_isSudokuX = $boolean;
   }  
+
+/**
+ * Sets the Flag whether its a Even/Odd Sudoku
+ *
+ * @return void
+ * @access public
+ */
+	public function isSudokuEvenOdd($boolean = false) { 	
+  	   $this->_isEvenOdd = $boolean;
+  }    
 
 /**
  * Solves the Sudoku
@@ -157,6 +184,9 @@ Class SudokuSolver{
                       if($this->_isSudokuX) {
                           $candidates = $this->_removeXDuplicates($i, $j, $candidates);
                       }
+                      if($this->_isEvenOdd) {
+                          $candidates = $this->_removeEvenOddDuplicates($i, $j, $candidates);
+                      }               
          
                       if(empty($candidates)) {
                           $this->errorOccured = true;
@@ -171,6 +201,58 @@ Class SudokuSolver{
           }
        }
 
+/**
+ * Fill the Cell with only one Candidate
+ *
+ * @return void
+ * @access public
+ */
+	public function isValidEvenOddSudoku($evenOddStream) { 
+	
+            $this->_evenOddStream = $evenOddStream;
+            for($x = 0; $x < 3; $x++) {
+                for($y = 0; $y < 3; $y++) {
+                    $rowStart = $x * 3;
+                    $colStart = $y * 3;
+                    $no_of_even_blocks = 0;
+                    for($i = $rowStart; $i < $rowStart + 3; $i++) {
+                        for($j = $colStart; $j < $colStart + 3; $j++) {
+                            if( isset($this->_evenOddStream[$i][$j]) && $this->_evenOddStream[$i][$j] != 0 ) {
+                                $no_of_even_blocks++;
+                            }               
+                        }
+                    }
+                    if($no_of_even_blocks != 4) {
+                         return false;
+                    }
+                }
+            }
+            
+            //Check all even Marked Cells have Even No.s and all Unmarked Cells have Odd No.s
+            for($i = 0; $i < 9; $i++) {
+               for($j = 0; $j < 9; $j++) {
+                    if( isset($this->_evenOddStream[$i][$j]) && $this->_evenOddStream[$i][$j] != 0 ) {
+                        //Should be even
+                        if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+                             if($this->_initialSudoku[$i][$j] % 2 != 0) {
+                                 return false;
+                             }
+                        }
+                    } else {
+                        //Should be Odd
+                        if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+                             if($this->_initialSudoku[$i][$j] % 2 == 0) {
+                                 return false;
+                             }
+                        }                                            
+                    }
+               }
+            }            
+            
+            
+            return true;
+	}
+	
 /**
  * Fill the Cell with only one Candidate
  *
@@ -317,6 +399,55 @@ Class SudokuSolver{
 	}	
 
 /**
+ * Removes the candidates based on Even/Odd
+ *
+ * @return array
+ * @access private
+ */
+	private function _removeEvenOddDuplicates($row, $column, $candidates) { 
+
+            if($this->_evenOddStream[$row][$column] == 1) {
+                $candidates = $this->_removeOddCandiates($candidates);
+            } else {
+                $candidates = $this->_removeEvenCandiates($candidates);                
+            }
+            return $candidates;
+	}
+	
+/**
+ * Removes the Odd Candidates
+ *
+ * @return array
+ * @access private
+ */
+	private function _removeOddCandiates($candidates) { 
+	
+
+            foreach($candidates as $key => $candidate) {
+               if($candidate % 2 != 0) {
+                   unset($candidates[$key]);               
+               }
+            }
+            return $candidates;
+	}	
+
+/**
+ * Removes the Even Candidates
+ *
+ * @return array
+ * @access private
+ */
+	private function _removeEvenCandiates($candidates) { 
+	
+            foreach($candidates as $key => $candidate) {
+               if($candidate % 2 == 0) {
+                   unset($candidates[$key]);               
+               }
+            }
+            return $candidates;
+	}	
+	
+/**
  * Check if it is solved completely
  *
  * @return array
@@ -415,12 +546,19 @@ Class SudokuSolver{
         $html .= '<tr bgcolor = "white" align = "center">';
         for($j = 0; $j < 9; $j++){
             $xx = '';
+            $even = '';
             if($this->_isSudokuX) {
                 if($i == $j || $j == 8 - $i) {
                     $xx = 'xx';
                 }
             }
-            $html .= '<td width="20" height="20" class="grid r'.$i.' c'.$j.' '.$xx.'" id="grid'.$i.$j.'">'.$this->_initialSudoku[$i][$j].'</td>';
+
+            if($this->_isEvenOdd) {
+                if($this->_evenOddStream[$i][$j] == 1) {
+                    $even = 'even';
+                }
+            }            
+            $html .= '<td width="20" height="20" class="grid r'.$i.' c'.$j.' '.$xx.' '.$even.'" id="grid'.$i.$j.'">'.$this->_initialSudoku[$i][$j].'</td>';
         }
         $html .= "</tr>";
     }
