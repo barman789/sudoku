@@ -10,7 +10,7 @@
   </head>
   <body>
   
-       <h1>Sudoku X Solver Demo</h1>
+       <h1>Evn Odd Sudoku Solver Demo</h1>
          
        <form action="solve.php" method="POST">
        <table bgcolor = "#000000" cellspacing = "1" cellpadding = "2" class="gridTable">
