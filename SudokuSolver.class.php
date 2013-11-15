@@ -127,22 +127,22 @@ Class SudokuSolver{
  */
 	public function solveSudoku() { 	
           $this->loop = 0;
-          $c = 0;
+          $this->total_guesses = 0;
        
           while( !$this->_is_solved ) {
             $this->_determineCandidates();
 
             $this->_isEverythingOkSoFar();
             if($this->_errorOccured) {
-                $c++;
                 $this->_candidates = array_pop($this->_trial_sudoku_candidates);
                 $this->_initialSudoku = array_pop($this->_trial_sudoku_state);
             }
-            
+
             $this->_fillCellsWithOneCandidate();
-            
-            //$this->needToGuess = true;
+            $this->_fillCellsWithHiddenSingles();
+
             if($this->needToGuess) {
+                $this->total_guesses++;
                 $this->_getCellWithLeastCandidates();
                 if($this->activeRow !== null && $this->activeColumn !== null) {
                     $cellValue = reset($this->_candidates[$this->activeRow][$this->activeColumn]);
@@ -161,6 +161,7 @@ Class SudokuSolver{
             $this->loop++;
        }
 
+       echo 'guessed '. $this->total_guesses;
        return $this->_initialSudoku;
   }	  	
   
@@ -202,7 +203,7 @@ Class SudokuSolver{
        }
 
 /**
- * Fill the Cell with only one Candidate
+ * Check if it is a Valid Even Odd Sudoku
  *
  * @return void
  * @access public
@@ -213,10 +214,10 @@ Class SudokuSolver{
             for($x = 0; $x < 3; $x++) {
                 for($y = 0; $y < 3; $y++) {
                     $rowStart = $x * 3;
-                    $colStart = $y * 3;
+                    $columnStart = $y * 3;
                     $no_of_even_blocks = 0;
                     for($i = $rowStart; $i < $rowStart + 3; $i++) {
-                        for($j = $colStart; $j < $colStart + 3; $j++) {
+                        for($j = $columnStart; $j < $columnStart + 3; $j++) {
                             if( isset($this->_evenOddStream[$i][$j]) && $this->_evenOddStream[$i][$j] != 0 ) {
                                 $no_of_even_blocks++;
                             }               
@@ -249,7 +250,6 @@ Class SudokuSolver{
                }
             }            
             
-            
             return true;
 	}
 	
@@ -275,7 +275,170 @@ Class SudokuSolver{
               }
            }
 	}	
+
+/**
+ * Find and Fill the Hidden Single Cells. 
+ * Hidden Single means the only Cell in the Row, Block or Column which allows the digit to be placed. 
+ *
+ * @return void
+ * @access private
+ */
+	private function _fillCellsWithHiddenSingles() {
+ 
+      $this->_checkRowsForHiddenSingles();
+      $this->_checkColumnsForHiddenSingles();
+      $this->_checkBlocksForHiddenSingles();
+ }
+ 	
+/**
+ * Check Rows for Hidden Singles 
+ *
+ * @return void
+ * @access private
+ */
+	private function _checkRowsForHiddenSingles() { 
 	
+           for($i = 0; $i < 9; $i++) {
+              $candidates_not_to_check = array();
+              foreach($this->_initialSudoku[$i] as $candidate) {
+                  if($candidate != 0 ) {
+                     $candidates_not_to_check[] = $candidate;
+                  }
+              }
+              
+              for($j = 1; $j <= 9; $j++) {
+                  if(in_array($j, $candidates_not_to_check)) {
+                       continue;
+                  }
+                  $potential_cells = 0;
+                  $column_no = 0;
+                  for($k = 0; $k < 9; $k++) {
+                      if(isset($this->_candidates[$i][$k])) {
+                          $key = array_search($j, $this->_candidates[$i][$k]);
+                          if($key !== false) {
+                              $potential_cells++;
+                              $column_no = $k;
+                              if($potential_cells > 1) {
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  if($potential_cells == 1) {
+                      $this->_initialSudoku[$i][$column_no] = $j;
+                      unset($this->_candidates[$i][$column_no]);
+                      $this->needToGuess = false;
+                      $candidates_not_to_check[] = $j;                      
+                  }
+              }
+           }
+	}
+
+/**
+ * Check Columns for Hidden Singles 
+ *
+ * @return void
+ * @access private
+ */
+	private function _checkColumnsForHiddenSingles() { 
+	
+
+           for($i = 0; $i < 9; $i++) {
+              $candidates_not_to_check = array();
+              for($j = 0; $j < 9; $j++) { 
+                  if($this->_initialSudoku[$j][$i] != 0 ) {
+                     $candidates_not_to_check[] = $this->_initialSudoku[$j][$i];
+                  }
+              }
+              
+              for($j = 1; $j <= 9; $j++) {
+                  if(in_array($j, $candidates_not_to_check)) {
+                       continue;
+                  }
+                  $potential_cells = 0;
+                  $row_no = 0;
+                  for($k = 0; $k < 9; $k++) {
+                      if(isset($this->_candidates[$k][$i])) {
+                          $key = array_search($j, $this->_candidates[$k][$i]);
+                          if($key !== false) {
+                              $potential_cells++;
+                              $row_no = $k;
+                              if($potential_cells > 1) {
+                                  break;
+                              }
+                          }
+                      }
+                  }
+                  if($potential_cells == 1) {
+                      $this->_initialSudoku[$row_no][$i] = $j;
+                      unset($this->_candidates[$row_no][$i]);
+                      $this->needToGuess = false;
+                      $candidates_not_to_check[] = $j;                      
+                  }
+              }
+           }
+	} 		
+	
+/**
+ * Check Blocks for Hidden Singles 
+ *
+ * @return void
+ * @access private
+ */
+	private function _checkBlocksForHiddenSingles() { 
+	
+            for($x = 0; $x < 3; $x++) {
+                for($y = 0; $y < 3; $y++) {
+                    $rowStart = $x * 3;
+                    $columnStart = $y * 3;
+                    $candidates_not_to_check = array();
+                    //Get Values of Cells which are already Filled
+                    for($i = $rowStart; $i < $rowStart + 3; $i++) {
+                        for($j = $columnStart; $j < $columnStart + 3; $j++) {
+                            if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
+                                $candidates_not_to_check[] = $this->_initialSudoku[$i][$j];
+                            }               
+                        }
+                    }
+
+                    //Loop Through each number in the block and get no. of cells for which it is a potential candidate
+                    for($k = 1; $k <= 9; $k++) {
+                        if(in_array($k, $candidates_not_to_check)) {
+                             continue;
+                        }
+
+                        $potential_cells = 0;
+                        $column_no = 0;
+                        $row_no = 0;
+                                                                  
+                        for($i = $rowStart; $i < $rowStart + 3; $i++) {
+                            for($j = $columnStart; $j < $columnStart + 3; $j++) {
+                                if( isset($this->_candidates[$i][$j])) {
+                                    $key = array_search($k, $this->_candidates[$i][$j]);
+                                    if($key !== false) {
+                                        $potential_cells++;
+                                        $row_no = $i;
+                                        $column_no = $j;
+                                        if($potential_cells > 1) {
+                                            break;
+                                        }
+                                    }                                    
+                                }               
+                            }
+                        }
+                        
+                        //If the Number is candidate at only one cell, then thats the cell
+                        if($potential_cells == 1) {
+                            $this->_initialSudoku[$row_no][$column_no] = $k;
+                            unset($this->_candidates[$row_no][$column_no]);
+                            $this->needToGuess = false;
+                            $candidates_not_to_check[] = $k;                      
+                        }                                             
+                    }
+                }
+            }
+	}
+ 	
 /**
  * Gets the Cell with Least Candidates
  *
@@ -347,10 +510,10 @@ Class SudokuSolver{
 	private function _removeBlockDuplicates($row, $column, $candidates) { 
 	
             $rowStart = floor( $row / 3 ) * 3;
-            $colStart = floor( $column / 3 ) * 3;
+            $columnStart = floor( $column / 3 ) * 3;
      
             for($i = $rowStart; $i < $rowStart + 3; $i++) {
-                for($j = $colStart; $j < $colStart + 3; $j++) {
+                for($j = $columnStart; $j < $columnStart + 3; $j++) {
                     if( isset($this->_initialSudoku[$i][$j]) && $this->_initialSudoku[$i][$j] != 0 ) {
                         $key = array_search($this->_initialSudoku[$i][$j], $candidates);
                         if($key !== false) {
